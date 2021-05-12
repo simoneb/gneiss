@@ -1,0 +1,499 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="cache-control" content="max-age=0" />
+<meta http-equiv="cache-control" content="no-cache" />
+<meta http-equiv="expires" content="0" />
+<meta http-equiv="expires" content="Tue, 01 Jan 1980 1:00:00 GMT" />
+<meta http-equiv="pragma" content="no-cache" />
+
+<title>Gneiss</title>
+
+<!-- CSS file for output -->
+<link rel="stylesheet" type="text/css" href="../../style.css"/>
+<link rel="stylesheet" type="text/css" href="../../output.css"/>
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="../../libraries/constraintjs-0.9.7-beta/cjs.min.js"></script>
+<script src="../../libraries/handlebars-v1.3.0.js"></script>
+<script type="text/javascript" src="../../libraries/jquery-1.10.2.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="../../libraries/jsonpath-0.8.0.js"></script>
+<!-- google vis library for maps, charts etc in the web interface builder -->
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script type="text/javascript">
+    google.load("visualization", "1", {packages:["corechart"]});
+    google.load('visualization', '1', { 'packages': ['map'] });
+    google.load("visualization", "1", {packages:["treemap"]});
+</script>
+<!-- data.js for streaming data filtering - can enter freeform text for date -->
+<script src="../../libraries/date.js"></script>
+
+<!--files for user study -->
+<!--<script type="text/javascript" src="data/user_study_data/tutorials/professors.json"></script>
+<script type="text/javascript" src="data/user_study_data/tutorials/staff.json"></script>
+-->
+<!--<script type="text/javascript" src="data/user_study_data/papers.json"></script>
+<script type="text/javascript" src="data/user_study_data/sessions.json"></script>
+-->
+<!--end of files for user study -->
+
+<script type="text/javascript" src="resources.js"></script>
+<script type="text/javascript" src="../client_export.js"></script>
+
+</head>
+
+<body>
+    <div id="container" style="height:92vh; padding:5px 25px 25px 25px; position:relative" test="">
+   		<div id="menu_bar" style="display:none; padding:5px; background-color:#EEE; margin-bottom:30px; font-family:Arial, Helvetica, sans-serif; width:98%; border:solid #CCC 1px; cursor:default">
+            <!--file is for export, saving, loading, etc. -->
+        	<span style="margin-right:25px; margin-left:10px;" id="file">File</span>
+            <!--view is for hiding and showing the panes --> 
+            <span style="margin-right:25px;" id="view">View</span> 
+            <!--settings is for server side settings currently, such as if to stream constantly or clean everything after file is close. --> 
+            <span style="margin-right:25px;" id="settings">Settings</span><br/>                    
+        </div>
+        
+        <!-- source pane -->
+        <div id="source" style="display:none; box-sizing:border-box; float:left; width:20%; height:95%; padding-right:20px; border-right:solid 1px black;">           
+            <!-- tabs. start by having tab1 and plus button -->
+            <div id="source_tab_div" style="width:100%; font-family:Arial, Helvetica, sans-serif; font-size:12px; ">
+                <ul id="source_tab_ul" class="tab_ul">
+                    <li class="source_tab" id="source_tab1" name="1" style="background-color:white;" selected="selected">tab1</li>
+                    <li class="new_tab" style="width:10px; height:10px; border:solid #AAA 1px; padding:1px 2px 3px 2px; text-align:center;">+</li>                       
+                </ul>                    
+            </div>
+            <!-- browser area -->
+            <div style="border:solid #999 1px; padding:10px 5px 5px 5px; height:calc(100% - 35px); position:relative ">
+                <!-- URL bar and file button -->
+            	<div style="height:95px;">
+                    <div id="get_post" style="float:left; margin-top:5px; margin-right:5px; padding:5px 2px 5px 2px; width:25px; background-color:#CCC; font-size:10px; font-family:Arial, Helvetica, sans-serif; cursor:pointer; text-align:center">GET</div>
+                    <input type="text" id="url_bar" style="font-size:14px; padding:5px; width:calc(100% - 100px); " placeholder="Load data from the web"/>
+                    <div id="refresh" style="float:right; height:35px; width:45px; background-image:url(images/refresh.png); background-size:contain; background-repeat:no-repeat; opacity:0.6; font-family:Arial, Helvetica, sans-serif; cursor:pointer"></div>
+                    
+                    <div style="font-family:Arial, Helvetica, sans-serif; font-size:12px; margin:5px 0px 5px 2px;">or</div>
+                    
+                    <input type="file" id="load_button" style="width:80px"></input>
+                    <span id="file_name_label" style="font-family:Arial, Helvetica, sans-serif; font-size:12px;"></span>
+                    <br/><br/>
+                </div>
+                <!-- checkboxes to activate selecting similar and streaming -->
+                <div id="source_toolbar" style="font-family:Arial, Helvetica, sans-serif; font-size:12px; margin-bottom:5px">                        
+                    <div style="text-align:left;">
+                        <input id="populated" type="checkbox" /><span id="populated_text">Select similar items based on my selection</span><br/>
+                        <input id="streamed_checkbox" type="checkbox" /><span id="stream_text" style="font-family:Arial, Helvetica, sans-serif; font-size:12px;">Stream this source every <input type="text" id="stream_secs" placeholder="5" style="width:30px; "/> second(s) </span></br>
+                        <!--<div id="stream_pause_div" style="visibility:hidden">
+                        <input id="pause_streaming_checkbox" type="checkbox" /><span id="stream_text" style="font-family:Arial, Helvetica, sans-serif; font-size:12px;">Pause streaming when <input type="text" id="stream_pause_condition" placeholder="checkbox checked" style="width:120px;" /></span>
+                        </div>-->
+                    </div>
+                </div>
+                <!-- returned JSON doc. show fetched time it it's streaming data -->
+                <div style="position:relative; height:calc(100% - 148px)">
+                    <div id="fetch_time" style="background-color:rgba(102, 204, 255, 0.5); color:black; float:right; font-family:Arial, Helvetica, sans-serif; font-size:12px; padding:2px 5px 2px 5px; position:absolute; right:0px; display:none;"></div>
+                	<div id="JSON_code" style="font-size:12px; white-space:pre; overflow:auto; font-family:CONSOLAS; height:calc(100% - 20px)"></div><br/>
+                    <div id="more_data" style="font-family:Arial, Helvetica, sans-serif; font-size:12px; text-align:center; cursor:pointer; display:none; "></div>       
+                </div> 
+            <!-- end of browser area -->                                            
+            </div>
+        <!-- end of source pane -->  
+        </div>
+
+        <!-- the spreadsheet editor -->
+        <div id="spreadsheet_pane" style="display:none; box-sizing:border-box; width:45%; height:95%; float:left; padding:0px 20px 0px 20px; overflow:auto;">
+            <!-- the main spreadsheet -->
+            <div id="spreadsheet" style="position:relative; font-family:Arial,Helvetica,sans-serif;">
+                <!--boxes for highlighting-->
+                
+                <!--highlight box is used when data is dragged from source to ss-->
+                <div id="highlight_box" class="highlights" style="border:solid 1px red;"></div>
+                <!--highlight_cell and highlgiht_cell_drop are for a cell and autofilling-->
+                <div id="highlight_cell" class="highlights" style="border:solid 1px green;">
+                	<div id="plus" style="position:absolute; width:10px; height:10px; right:0; bottom:0; cursor:crosshair; pointer-events:auto;"></div>
+                </div>
+                <div id="highlight_cell_drop" class="highlights" style="border:solid 1px green; border-style:dashed;"></div>
+
+                <!--all the highlight_sf_xxx are highlighting when sorting and filtering dialog box is open -->
+                <div id="highlight_sf_col" class="highlights" style="border:solid blue 1px;"></div>
+                <div id="highlight_sf" class="highlights" style="background-color:rgba(0, 0, 150, 0.1);"></div>
+                <div id="highlight_sf2" class="highlights" style="background-color:rgba(0, 150, 0, 0.1);"></div>
+
+                <!--end of highlights-->
+
+                <!--for nested cells, they have a floating, moving input-->
+                <input type="text" id="nested_cell_input" style="display:none; position:absolute"/>
+                                
+
+                <!--sorting and filtering dialog box-->
+                <div id="new_sf_box" style="border:solid 1px black; background-color:white; display:none; position:absolute; font-size:10pt;">
+                    <!-- constraint JS don't automatically update if not link to UI, so need a dummy -->
+                    <p id="filter_constraint_dummy" style="display:none"></p>
+                    <!-- title bar -->
+                    <div style="width:100%; text-align:center; background-color:black; color:white; padding:5px 0px 5px 0px; position:relative;">Sorting and Filtering
+                        <div id="filter_close_icon" style="position:absolute; width:15px; height:15px; right:5px; bottom:5px; background:url(images/icon_grey_close.jpg) no-repeat center; background-size:contain; cursor:pointer;"></div>
+                    </div>
+                    <!-- options -->
+                    <div style="margin:10px">
+                        <!-- streaming -->
+                        <!--<div id="streaming_setting_box">
+                        Streaming:<br/>                 
+                            <div style="padding-left:10px; padding-top:5px;">
+                                 <input type="checkbox" id="stream_checkbox" />      
+                                Stream Data from
+                                <div style="margin-left:22px;">
+                                    <input type="text" id="stream_source" placeholder="source (URL or UI element)" style="width:172px; " /> <br/>
+                                    every <input type="text" id="stream_secs" placeholder="" style="width:30px; " /> second(s)<br/>                                        
+                                </div>
+
+                                <input type="checkbox" id="stream_pause" /> 
+                                    Pause streaming when
+                                <div style="margin-left:22px;">
+                                    <input type="text" id="stream_pause_condition" placeholder="" style="width:172px; " />
+                                </div>
+
+                            </div>
+                        </div>
+                        <br/> -->                   
+                        <!-- Sorting -->  
+                        <div id="sort_div">                     
+                            Sort: 
+                            <select id="sort">
+                                <option value="None">None</option>
+                                <option value="Ascending">Ascending</option>
+                                <option value="Descending">Descending</option>                        
+                            </select> 
+                            <div id="sort_computed_div">
+                                  <input type="checkbox" id="sort_computed" /> Use computed value
+                                  <br/>
+                                  <input type="text" id="sort_formula" style="width:172px; margin-left:22px;" placeholder="" /> 
+                            </div>                    
+                        </div>
+                        <br/>
+                        <!-- Filtering -->    
+                        Filter: 
+                        <div id="filter_div" style="padding-left:10px;">
+                            <!--first X items-->
+                            <div id="filter_top_div" style="padding-bottom:3px;">
+                                <input type="checkbox" name="filter" value="top" id="filter_top" /> The first <input type="text" id="filter_top_num" style="width:30px;" /> item(s)
+                            </div>
+                            <!--by values -->
+                            <div id="filter_value_div" style="padding-bottom:3px;">
+                                <input type="checkbox" name="filter" value="value" id="filter_value" /> Value 
+                                <select id="filter_value_method">
+                                    <option value="=">equals</option>
+                                    <option value="!=">not equals</option>
+                                    <option value="contains">contains</option>
+                                    <option value=">=">>=</option>
+                                    <option value="<="><=</option>
+                                    <option value=">">></option>
+                                    <option value="<"><</option>                                
+                                </select>
+                                <input type="text" id="filter_value_num" style="width:60px;" />
+                            </div>
+                            <!--duplicates-->
+                            <div id="filter_duplicates_div>" style="padding-bottom:3px;">
+                                <input type="checkbox" name="filter" value="duplicates" id="filter_duplicates" /> Remove duplicates
+                            </div>
+                            <!--streaming-->
+                            <div id="filter_stream_box" style="display:none; padding-bottom:3px;">
+                                <input type="checkbox" name="filter" value="value" id="filter_stream" /> Data fetched before <br/>                                       
+                                <input type="text" id="filter_time_before" style="width:172px; margin-left:22px;" placeholder="Enter a date or time" />            
+                                <br/>
+                                <p id="filter_time_before_interp" style="color:grey; font-size:10px; margin-top:2px; margin-left:22px; height:5px;"  ></p>
+
+                                <span style="margin-left:22px">After</span>
+                                <input type="text" id="filter_time_after" style="width:172px; margin-left:22px;" placeholder="Enter a date or time" />
+                                <br/>
+                                <p id="filter_time_after_interp" style="color:grey; font-size:10px; margin-top:2px; margin-left:22px; height:5px;"  ></p>
+                                
+                                <span id="date_error" style="color:red; display:none;">Error: Please follow the date format yyyy-mm-dd hh:mm:ss</span>
+                            </div>
+                            <div id="filter_computed_div">
+                                  <input type="checkbox" id="filter_computed" /> Use computed value
+                                  <br/>
+                                  <input type="text" id="filter_formula" style="width:172px; margin-left:22px;" placeholder="" /> 
+                            </div>
+                            <!--<input type="checkbox" name="filter" value="blank" id="filter_blank" /> Remove empty rows
+                            <br/>-->
+                            <!--end of filtering-->
+                        </div>
+                        <br/> 
+                        <!-- end of options -->                                                  
+                    </div>
+
+                    <!-- OK and cancel buttons -->
+                    <div style="text-align:center; width:100%; margin-bottom:20px;">
+                        <button type="button" id="filter_cancel" style="width:40%; margin-right:10px;">Close</button><button type="button" id="filter_apply" style="width:40%">OK</button>
+                    </div>
+                    <!-- end of SF box -->
+                </div>
+            <!--end of main spreadsheet -->                   
+            </div>
+        <!-- end of spreadsheet wrapper -->
+        </div>
+        
+        <!-- web editor pane -->
+        <div id="web_editor" style="box-sizing:border-box; width:100%; height:95%; float:left; font-family:Arial, Helvetica, sans-serif; font-size:12px; "> 
+            <!-- tabs. start with an index tab and a plus button. and the preview/edit buttons -->          
+            <div id="tab_div" style="width:100%; display:none; ">
+                <ul id="web_tab_ul" class="tab_ul">
+                    <li id="webtab_index" class="web_tab" name="index" style="background-color:white" selected="true">index</li>
+                    <li class="new_tab" style="width:10px; height:10px; border:solid #AAA 1px; padding:1px 2px 3px 2px; text-align:center;">+</li>                                            
+                    <div class="mode_button" id="mode_preview" name="preview">Preview</div>
+                    <div class="mode_button" id="mode_edit" name="edit">Edit</div>
+                </ul>                
+            </div>
+            <!--the main editing area. -->
+            <div id="editor_container" style="float:left; height:100%; width:100%; text-align:center; position:relative; overflow:auto;">
+                <!-- start with the index page editing area -->
+                <div id="editor_index" name="index" class="web_editor_output" style="height:calc(100% - 10px); width:calc(100% - 15px); ">
+                    <div id="element_hover_highlight" class="highlights"></div>
+                </div>
+                
+                <div id="element_move_box" class="highlights"></div>
+                <div id="element_move_line" style="position:absolute; display:none; width:100%; margin:0px;">
+                    <hr/><br/>
+                </div>
+            </div>
+            <!--the side pane with all the UI options-->
+            <div id="web_editor_toolbar" style="display:none; float:right; height:calc(100% - 20px); width:152px; border:solid 1px #999; position:relative;" hide="true">
+                <div id="tool_UI" style="height:50%">
+                    <div id="tool_headbar" style="background-color:#EEE; font-size:12px; padding:5px 0px 5px 0px; text-align:center;">UI elements</div>
+                    <div style="padding:5px; text-align:center;">
+                        <select id="UI_element_select">
+                          <option value="textandimages">Text & Image</option>
+                          <option value="input">Input</option>
+                          <option value="list">List & Visualization</option>      
+                        </select>
+                    </div>         
+                    <div class="UI_tabs" id="textandimages">
+                        <ul>
+                            <li>Text</li>
+                            <li>Image</li>
+                            <li>Heading</li>       
+                        </ul>
+                    </div>      
+                    <div class="UI_tabs" id="input" style="display:none">
+                        <ul>
+                            <li>Text Box</li>
+                            <li>Button</li>
+                            <li>Slider</li>
+                            <li>Checkbox</li>
+                            <li>Radio Button</li>           
+                        </ul>
+                    </div>  
+                    <div class="UI_tabs" id="list" style="display:none">
+                        <ul>
+                            <li>Vertical List</li>
+                            <li>Grid List</li>
+                            <li>Bar Chart</li>
+                            <li>Line Chart</li>
+                            <li>Scatter Chart</li>
+                            <li>Treemap</li>
+                            <li>Map</li>
+                        </ul>
+                    </div>                 
+                </div>
+                <!-- property sheet -->
+                <div id="tool_prop" style="height:50%; display:none; background-color:#EEE">
+                    <div style="text-align:center; background-color:white">
+                        <button type="button" id="delete_ui_button">Delete</button><br/><br/>
+                    </div>
+                    <div id="tool_prop_headbar" style="background-color:#EEE; font-size:12px; padding:5px 0px 5px 0px; text-align:center; height:20px;"></div>
+                    <div id="tool_spreadsheet" style="overflow:auto; width:100%; height:calc(100% - 30px); ">
+                    </div>
+                </div>
+            <!-- end of web editor side pane -->
+            </div>
+        <!-- end of web editor -->
+        </div>
+       
+       <!-- all the menus... need to be put in the last since they need to cover other objects -->
+       <!-- menu for the top bar -->
+        <div id="menu_options" style="display:none; position:absolute; font-family:Arial,Helvetica,sans-serif;">
+        	<div id="file_menu" class="top_menus" style="display:none;">
+            	<div class="menu_items" id="save">
+                	Save program 
+                </div>
+                <div class="menu_items" id="load">
+                	Load program
+                </div>
+                <div class="menu_items" id="export">
+                    Export the right pane as a web application
+                </div>
+            </div>                
+            <div id="view_menu" class="top_menus" style="display:none;">
+                <div class="menu_items" id="view_source_pane">
+                    <span>&#10003 </span>Source pane
+                </div>   
+                <div class="menu_items" id="view_web_editor">
+                    <span>&#10003 </span>Web editor
+                </div>                   
+            </div>
+            <div id="settings_menu" class="top_menus" style="display:none;">
+                
+            </div>
+        </div>
+
+        <!-- right-click menu: NEEDS CLEANED UP -->
+        <div id="right_click_menu" style="position:absolute; font-family:Arial, Helvetica, sans-serif;">
+            <div id="stream_cell_top" class="top_menus" style="display:none;">
+                <div class="menu_items" id="stream_cell">
+                    
+                </div>                    
+            </div>
+            <div id="copy_structure_top" class="top_menus" style="display:none;">
+                <div class="menu_items" id="copy_structure">
+                    Insert a new column that has <br/>the same structure
+                </div>                    
+            </div>                
+            <div id="clear_cell_top" class="top_menus" style="display:none;">
+                <div class="menu_items" id="clear_cell">
+                    Clear content
+                </div>                    
+            </div>
+            <div id="view_source_top" class="top_menus" style="display:none;">
+                <div class="menu_items" id="view_source">
+                    View source
+                </div>                    
+            </div>
+            <div id="view_image_top" class="top_menus" style="display:none;">
+                <div class="menu_items" id="view_image">
+                    View as an image
+                </div>                    
+            </div>
+            <div id="view_url_top" class="top_menus" style="display:none;">
+                <div class="menu_items" id="view_url">
+                    View the URL
+                </div>                    
+            </div>
+            <div id="clear_column_top" class="top_menus" style="display:none;">
+                <div class="menu_items" id="clear_column">
+                    Clear content 
+                </div>                    
+            </div>
+            <div id="group_column_top" class="top_menus" style="display:none;">
+                <div class="menu_items" id="group_column">
+                    
+                </div>                    
+            </div>
+            <div id="join_tables_top" class="top_menus" style="display:none;">
+                <div class="menu_items" id="join_tables">
+                    
+                </div>                    
+            </div>
+            <!--<div id="delete_ui_top" class="top_menus" style="display:none;">
+                <div class="menu_items" id="delete_ui">
+                    Delete
+                </div>                    
+            </div>-->
+        </div> 
+
+        <!-- the label shown when dragging things around -->
+        <div id="drag_shadow" class="highlights" style="font-family:CONSOLAS; font-size:12px; border:solid 1px rgb(102, 204, 255); -webkit-border-radius:5px; background-color:rgba(102, 204, 255, 0.5); padding:5px;"></div>
+
+        <!-- NO IDEA WHAT THEY ARE. NEEDS CLEANED UP 
+        <div style="display:none; width:100%; height:100%; background-color:rgba(0, 0, 0, 0.5); position:absolute; top:0; left:0" id="settings_box">
+            <div style="margin:0 auto; width:280px; background-color:white; color:black; font-family:Arial, Helvetica, sans-serif; padding:15px; border:solid black 1px; position:relative; top:100px;">
+                Pull data from web data sources every <input type="text" style="width:100px" id="streaming_frequency"></input> second(s)<br/><br/>
+                Remove streamed data on the server <br/>
+                <form id="remove_server_data">
+                    <input type="radio" name="remove_server_data" value="close" />When closing the spreadsheet<br/>
+                    <input type="radio" name="remove_server_data" value="daily" />Daily at 12AM<br/>
+                    <input type="radio" name="remove_server_data" value="never" />Never<br/>
+                <form>
+                <br/>
+                <div style="text-align:center; width:100%; ">
+                    <button type="button" id="streambox_cancel" style="width:40%; margin-right:10px;">Cancel</button><button type="button" id="streambox_apply" style="width:40%">Apply</button>
+                </div>             
+            </div>        
+        </div>
+        
+        -->
+
+        <div>
+            <a id="export_link"></a>
+            <input type="file" id="chooseImport" style="width:0px; height:0px;" />
+        </div>  
+
+    <!-- end of main container. everything should be inside the container -->
+	</div>
+    
+
+      
+
+    <!-- handlebar templates for generating the main spreadsheet, nested tables, and property sheet -->    
+    <script id="spreadsheet_template" type="text/x-handlebars-template">    	
+    <table class="spreadsheet_table" id="{{id}}" style="table-layout">
+    	<tr class="column_labels">
+        	<td label="corner"></td>
+            {{#each table.rows.0.columns}}
+            <td class="column_label" label="{{label}}" ><div style="min-width:100px;">{{label}}<span class="col_name" >{{#if name}} ({{name}}){{/if}}</span></div>
+                <div class="ungroup_icon" style="position:absolute; width:12px; height:12px; left:4px; bottom:4px; boder:solid back 1px; background-size:contain; cursor:pointer; display:none;"></div>
+                <div class="filter_icon" style="position:absolute; width:12px; height:12px; right:4px; bottom:4px; background:url(images/dropdown_icon.png) no-repeat center; background-size:contain; cursor:pointer; display:none;"></div>
+                <div class="v_resize_lines" id="vline_{{parent}}{{label}}"></div>
+            </td>
+            {{/each}}            
+        </tr>
+        {{#each table.rows}}
+        <tr class="row" name="{{number}}">
+        	<td class="row_label" label="{{number}}">{{number}}
+                <div class="h_resize_lines" id="hline_{{parent}}{{number}}"></div>
+            </td>
+            {{#each columns}}
+            <td class="cell" label="{{parent}}{{label}}{{../number}}" col="{{label}}" row="{{../number}}" parent="{{parent}}">
+            	<div class="cell_div" label="{{parent}}{{label}}{{../number}}" >
+                     <input class="cell_input" label="{{parent}}{{label}}{{../number}}" />
+                     <div class="cell_output" label="{{parent}}{{label}}{{../number}}" >{{{content}}}</div>
+                </div>
+            </td>
+            {{/each}}
+        </tr>	
+        {{/each}}
+        <tr class="column_more_row" style="display:none">
+        <td class="column_more_cell" style="background-color:#eee; height:25px;"></td>
+            {{#each table.rows.0.columns}}
+            <td class="column_more_cell" style="background-color:#eee"></td>
+            {{/each}}
+        </tr>
+    </table>	    
+    </script>
+
+
+    <script id="nested_spreadsheet_template" type="text/x-handlebars-template">        
+    <table class="nested_spreadsheet_table" id="{{id}}" length="{{rowNum}}">        
+        {{#each table}}
+        <tr class="row" label="{{../col}}{{rowLabel}}" style="height:{{height}}; pointer-events:auto">
+            <td class="nested_row_label" label="{{rowLabel}}" style="width:{{../rowLabelWidth}}px">{{rowLabel}}</td> 
+            <td class="nested_cell" label="{{../col}}{{rowLabel}}" style="background-color:white">
+                <div class="nested_cell_div"  style="height:{{nestHeight}}">
+                     <div class="cell_output" style="pointer-events:auto;">{{{data}}}</div>
+                </div>
+            </td>            
+        </tr>   
+        {{/each}}        
+    </table>   
+    </script>
+
+    <script id="ui_prop_sheet_template" type="text/x-handlebars-template">        
+    <table class="spreadsheet_table" id="{{id}}" >        
+        {{#each table.rows}}
+        <tr class="prop_row" label="Prop{{number}}">
+            <td class="prop_name" label="Prop{{number}}" ></td>
+            {{#each columns}}
+            <td class="prop_value" label="Prop{{../number}}" >
+                <div class="prop_div">
+                     <input class="prop_input" label="Prop{{../number}}" />
+                     <div class="prop_output" label="Prop{{../number}}"></div>
+                </div>
+            </td>
+            {{/each}}
+        </tr>   
+        {{/each}}
+    </table>        
+    </script>
+    <!--end of handlebar templates-->
+
+</body>
+</html>

@@ -1,0 +1,17 @@
+{
+  "name": "gneiss_v0.1",
+  "version": "1.0.0",
+  "description": "Hi! Thank you for your interests in using Gneiss. Gneiss is a research prototype that experiments using spreadsheets to interact with web services and create data-driven GUI applications. I have published several papers about Gneiss. You can find the papers on my website (http://www.cs.cmu.edu/~shihpinc/gneiss.html).",
+  "main": "client.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "mongoose": "^5.12.8",
+    "socket.io": "^4.1.1"
+  }
+}

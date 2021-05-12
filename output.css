@@ -1,0 +1,112 @@
+/*
+CSS stylesheet for web interface builder in Gneiss
+*/
+#editor_container{
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color:rgb(51,51,51);
+    background-color: #f7f7f9;
+}
+#editor_container h1{
+    font-weight: 500;
+    font-size: 36px;
+}
+
+.output_UI{
+    cursor: default;
+}
+
+.web_editor_output{
+    padding:5px;
+}
+
+.web_editor_output p{
+    margin: 0px;
+    padding: 5px;
+}
+
+.web_editor_output h1{
+    margin: 0px;
+    padding: 5px;
+}
+
+.grid_list{
+    margin:0px;
+    padding:5px;
+}
+
+.vertical_list{
+    margin:0px;
+}
+.grid_list li {
+    width: 200px;
+    min-height: 100px;
+    border: 1px dashed #DDD;
+    display: inline-block;
+    vertical-align:top;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    overflow: hidden;
+}
+
+.vertical_list li{
+    margin-bottom: 5px;
+    border: 1px dashed #DDD;
+    text-align: left;
+}
+/*#editor_container .h1{
+    font-size: 36px;
+}
+#editor_container .h2{
+    font-size: 30px;
+}
+#editor_container .h3{
+    font-size: 24px;
+}
+#editor_container .h4{
+    font-size: 18px;
+}
+#editor_container .h5{
+    font-size: 14px;
+}
+#editor_container .h6{
+    font-size: 12px;
+}*/
+#editor_container p{
+    line-height: 1.428;
+}
+
+/*style for button*/
+#editor_container button{
+    box-sizing:border-box;
+    background-color: #fff;
+    background-image: none;
+    border: solid 1px rgb(204, 204, 204);
+    border-radius: 4px;
+    padding:6px 12px;
+    cursor: pointer;
+    font-weight: 400;
+}
+#editor_container button:hover{
+    color:#333;
+    background-color: #ebebeb;
+    border-color: #adadad;
+}
+
+#editor_container input[type='text']{    
+    padding:6px 12px;
+    font-size:14px;
+    line-height: 1.428;
+    color:#555;
+    background-color: #fff;
+    background-image: none;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+}
+#editor_container input[type='text']:focus{    
+    border-radius: 4px;
+}
+
+#editor_container input[type='range']{    
+
+}

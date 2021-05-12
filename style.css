@@ -1,0 +1,263 @@
+/*CSS file for Gneiss editor*/
+/*Source pane JSON doc*/
+.PropertyName{
+    color:#606; 
+}
+.Number{
+    color:#F33; 
+}
+.String{
+    color:#090; 
+}
+.Boolean{
+    color:#630; 
+}
+.URL{
+    text-decoration:underline;
+    cursor:pointer; 
+}
+.URL:hover{
+    text-decoration:none;   
+}
+.selectable_object{
+    display:inline-block;
+    padding:1px 2px 1px 2px;
+    cursor:default;    
+}
+
+/*spreadsheet*/
+table { border-collapse: collapse; } 
+
+.highlights {
+    pointer-events:none; 
+    position:absolute; 
+    display:none;
+}
+
+.column_labels  > td, .row_label, .prop_name, .nested_row_label  {
+    text-align: center;
+    background: #EEE;
+}
+
+.row_label{
+    width:30px;
+}
+
+.column_label, .row_label{
+    position:relative;  
+    /*cursor:s-resize;*/
+}
+.column_label{
+    cursor:s-resize;
+    padding: 1px 0px 1px 0px;
+}
+
+.filter_icon{
+    cursor:pointer; 
+}
+
+
+
+.cell, .prop_value {
+    font-size: 10pt;   
+    padding:0px;    
+}
+
+.cell_div, .prop_div {
+
+    min-width:100px;
+    width:100%;
+    min-height:25px;
+    height:100%;
+    position:relative;    
+    overflow: hidden;
+    display: inline-block; 
+    line-height: 20px;
+} 
+
+
+.cell_input, .prop_input {
+    border: none; 
+    position:absolute;
+    margin:0px;
+    width:calc(100% - 2px);   
+    top:0;
+    bottom:0;
+    font-size: 14px;
+}
+
+.cell_output, .prop_output {
+    position:relative; 
+    background: white;
+    pointer-events: none;       
+    padding:4px;    
+    width:calc(100% - 8px);
+    height:calc(100% - 8px);
+    overflow: hidden;
+    cursor:auto;
+    /*white-space: pre-wrap;*/
+    
+ } 
+
+
+.nested_cell_div {
+    /*height:28px;
+    height:100%;
+    min-height:25px;*/
+    position:relative;    
+    overflow: hidden;
+    display: inline-block; 
+    line-height: 20px;
+
+}
+
+.nested_spreadsheet_table {
+    table-layout: fixed;
+    width:100%;
+    height:100%;
+    
+}
+
+
+.nested_row_label {
+    width:40px;
+    border-left:none;
+    border-top:none;
+}
+
+.nested_cell {
+    font-size: 10pt;   
+    padding:0px;
+   
+    border-top:none;
+    border-right:none;
+}
+
+
+
+ hr { background-color: red; height: 1px; border: 0; }  
+
+ 
+.cell_input:focus + .cell_output { visibility:hidden; }
+.cell_input:focus + .imageDiv { visibility:hidden; }
+
+
+.prop_input:focus + .prop_output { visibility:hidden; }
+
+
+td{ border: 1px solid #DDD;}
+
+.grey_out_cell_output{  
+    background-color:#DDD;
+    border-left:solid white 2px;
+    border-right:solid white 2px;   
+    font-style: italic;
+}
+
+.grey_out_cell_input {
+    visibility:hidden;
+}
+
+.top_menus{
+    border:solid black 1px; 
+    background:white; 
+    padding:5px 15px 5px 15px   
+}
+
+.menu_items{
+    background-color:white;
+    color:black;
+    cursor:default;
+}
+
+.menu_items:hover{
+    background-color:blue;
+    color:white;
+}
+
+/*web_editor*/
+
+.UI_tabs li{
+    padding-bottom: 10px;
+    cursor:default;
+}
+
+.UI_tabs li:hover{
+    text-decoration: underline;
+}
+
+
+.tab_ul {
+    margin:0px;
+    padding:0px;
+}
+.web_tab, .source_tab, .new_tab{
+    padding:2px 5px 2px 5px;
+    border:solid #AAA 1px;
+    border-bottom: none;
+    display: inline-block;
+    cursor: default;
+    margin-right: 2px;
+    background-color: #DDD;
+}
+
+.mode_button{
+    cursor: default;
+    float:right;
+    margin: -2px 0px 2px 5px;
+    border:1px solid #AAA;
+    border-radius:5px;
+    padding:2px 5px 2px 5px;
+
+}
+
+.new_tab:hover{
+    background-color: #EEE;
+}
+
+.web_editor_output{
+    padding-bottom: 10px;
+}
+
+/* resize lines */
+.h_resize_lines{
+    position:absolute;
+    bottom:0;
+    left:0;
+    height:5px;
+    width:100%;  
+    cursor:n-resize;  
+}
+
+.v_resize_lines{
+    position: absolute;
+    right:0;
+    top:0;
+    width:5px;
+    height:100%;
+    cursor:e-resize;
+}
+
+.h_resize_lines:hover, .v_resize_lines:hover{
+    background-color: blue;
+}
+
+.ungroup_icon{   
+    background-image:url(images/ungroup-cells.png);
+    background-position: center; 
+    background-repeat: no-repeat;
+}
+
+#more_data{
+    color:blue;
+    text-decoration: underline;
+}
+#more_data:hover{
+    text-decoration: none;
+}
+
+.col_name{
+    color:gray; 
+    font-size:12px;
+    padding-left: 5px;
+}
